@@ -1,0 +1,103 @@
+# dependencies are based on https://github.com/PixarAnimationStudios/USD/blob/v21.11/VERSIONS.md
+app-id: com.pixar.usdview
+branch: 21.11-0
+runtime: org.kde.Platform
+runtime-version: '5.14'
+sdk: org.kde.Sdk//5.14
+command: run.sh
+cleanup:
+  - /cmake
+  - /include
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --filesystem=home
+  - --device=dri
+modules:
+  # needed by PySide2, copied from https://github.com/flathub/org.mozilla.firefox.BaseApp
+  - kerberos.json
+  - name: PyOpenGL
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST} "PyOpenGL" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/47/9a/8d9364533ebcaa13621994a63dcc6a6051e27671ae5e1715dac4af18cac2/PyOpenGL-3.1.5-py3-none-any.whl
+        sha256: 36b4ac28220e4bfa29e5557525ad2967ca74558a94bccea48864fc742b18db11
+  - name: PySide2
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST} "shiboken2" --no-build-isolation
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST} "PySide2" --no-build-isolation
+    build-options:
+      no-debuginfo: true
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/b5/9b/afca43974697e7b50ec22d3ad0c878a3d07eb89bfe75d341707ff2421772/shiboken2-5.14.1-5.14.1-cp35.cp36.cp37.cp38-abi3-manylinux1_x86_64.whl
+        sha256: b046f810f2409b734621972ee6bff1eac76e87f08ab0638010d99a1b79f72842
+      - type: file
+        url: https://files.pythonhosted.org/packages/d3/ea/4699f9a83069751b98b038733b3123f5774da939ebba29a601964280a756/PySide2-5.14.1-5.14.1-cp35.cp36.cp37.cp38-abi3-manylinux1_x86_64.whl
+        sha256: 5b0cf7f0a9cb8fb11881b8615c7d979f5d02bdab6c3f428bf40956537c87071c
+  - name: boost
+    buildsystem: simple
+    build-commands:
+      - ./bootstrap.sh --prefix=${FLATPAK_DEST} --with-libraries=program_options,python
+      - BOOST_BUILD_PATH=$PWD ./b2 install
+    sources:
+      - type: archive
+        url: https://boostorg.jfrog.io/artifactory/main/release/1.70.0/source/boost_1_70_0.tar.gz
+        sha256: 882b48708d211a5f48e60b0124cf5863c1534cd544ecd0664bb534a4b5d506e9
+      - type: file
+        path: user-config.jam
+  - name: tbb
+    buildsystem: simple
+    build-commands:
+      - cp -r tbb2018_20180822oss/include tbb2018_20180822oss/lib tbb2018_20180822oss/cmake ${FLATPAK_DEST}
+    sources:
+      - type: archive
+        url: https://github.com/oneapi-src/oneTBB/releases/download/2018_U6/tbb2018_20180822oss_lin.tgz
+        sha256: d3cdbe5cea0325b2741ec1fb7e298d8338cd3e5f721ae9a7ffc56bad3cc1543c
+        dest: tbb2018_20180822oss
+  - name: OpenSubdiv
+    buildsystem: cmake
+    config-opts:
+      - -DNO_EXAMPLES=ON
+      - -DNO_TUTORIALS=ON
+      - -DNO_REGRESSION=ON
+      - -DNO_DOC=ON
+    sources:
+      - type: archive
+        url: https://github.com/PixarAnimationStudios/OpenSubdiv/archive/refs/tags/v3_4_3.tar.gz
+        sha256: 7b22eb27d636ab0c1e03722c7a5a5bd4f11664ee65c9b48f341a6d0ce7f36745
+  - name: usd
+    buildsystem: cmake
+    config-opts:
+      - -DPXR_BUILD_TESTS=OFF
+      - -DPXR_BUILD_EXAMPLES=OFF
+      - -DPXR_BUILD_TUTORIALS=OFF
+      - -DPXR_BUILD_USDVIEW=ON
+      - -DPXR_BUILD_USD_TOOLS=OFF
+      - -DPXR_ENABLE_PTEX_SUPPORT=OFF
+      - -DPXR_USE_PYTHON_3=ON
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: git
+        url: https://github.com/PixarAnimationStudios/USD.git
+        tag: v21.11
+  - name: extra
+    buildsystem: simple
+    build-commands:
+      - install -D run.sh -t /app/bin/
+      - install -Dm644 empty.usda -t /app/share/usdview/
+      - install -Dm644 com.pixar.usdview.desktop -t /app/share/applications/
+      - install -Dm644 USDLogo24.svg /app/share/icons/hicolor/scalable/apps/com.pixar.usdview.svg
+    sources:
+      - type: file
+        path: run.sh
+      - type: file
+        path: empty.usda
+      - type: file
+        path: com.pixar.usdview.desktop
+      - type: file
+        path: USDLogo24.svg

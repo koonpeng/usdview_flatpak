@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=usdview
+Exec=run.sh %f
+Type=Application
+Icon=com.pixar.usdview
+Categories=Graphics;
