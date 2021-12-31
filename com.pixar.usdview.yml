@@ -92,6 +92,7 @@ modules:
       - install -Dm644 empty.usda -t /app/share/usdview/
       - install -Dm644 com.pixar.usdview.desktop -t /app/share/applications/
       - install -Dm644 USDLogo24.svg /app/share/icons/hicolor/scalable/apps/com.pixar.usdview.svg
+      - install -Dm644 com.pixar.usdview.xml -t /app/share/mime/packages/
     sources:
       - type: file
         path: run.sh
@@ -101,3 +102,5 @@ modules:
         path: com.pixar.usdview.desktop
       - type: file
         path: USDLogo24.svg
+      - type: file
+        path: com.pixar.usdview.xml
