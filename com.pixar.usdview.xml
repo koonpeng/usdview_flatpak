@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
   <mime-type type="application/usd">
-    <glob pattern="*.usda"/>
 		<glob pattern="*.usdc"/>
 		<glob pattern="*.usd"/>
 		<icon name="com.pixar.usdview"/>
   </mime-type>
+	<mime-type type="application/usda">
+		<glob pattern="*.usda"/>
+		<icon name="com.pixar.usdview"/>
+	</mime-type>
 </mime-info>
